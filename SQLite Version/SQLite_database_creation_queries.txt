@@ -1,0 +1,177 @@
+CREATE TABLE UserProfile (
+  user_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  age INTEGER,
+  gender TEXT,
+  height_cm REAL,
+  bodyweight_goal REAL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Exercise (
+  exercise_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_ID INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  is_custom BOOLEAN DEFAULT 1,
+  is_active BOOLEAN DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (user_ID) REFERENCES UserProfile(user_ID)
+  		ON DELETE CASCADE
+  		ON UPDATE CASCADE
+);
+
+
+CREATE TABLE WorkoutTemplate (
+  template_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_ID INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  note TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_ID) REFERENCES UserProfile(user_ID)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+);
+
+
+CREATE TABLE TemplateExercise (
+  template_exercise_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+  template_ID INTEGER NOT NULL,
+  exercise_ID INTEGER NOT NULL,
+  num_sets INTEGER NOT NULL,
+  position INTEGER NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (template_ID) REFERENCES WorkoutTemplate(template_ID)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE,
+  FOREIGN KEY (exercise_ID) REFERENCES Exercise(exercise_ID)
+      ON DELETE RESTRICT
+      ON UPDATE CASCADE
+);
+
+   
+CREATE TABLE BodyweightEntry ( 
+ bodyweight_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+ user_ID INTEGER NOT NULL,
+ logging_date DATE NOT NULL,
+ weight REAL NOT NULL,
+ note TEXT,
+
+ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+ FOREIGN KEY (user_ID) REFERENCES UserProfile(user_ID)
+);
+  
+CREATE TABLE WorkoutSession (
+  workout_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_ID INTEGER NOT NULL,
+  date DATE NOT NULL,
+  title TEXT,
+  status TEXT CHECK(status IN ('draft', 'complete')) NOT NULL,
+  note TEXT,
+  template_ID INTEGER,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_ID) REFERENCES UserProfile(user_ID)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE,
+  FOREIGN KEY (template_ID) REFERENCES WorkoutTemplate(template_ID)
+      ON DELETE SET NULL
+      ON UPDATE CASCADE
+);
+   
+    
+CREATE TABLE WorkoutExercise (
+  workout_exercise_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+  workout_id INTEGER NOT NULL,
+  exercise_id INTEGER NOT NULL,
+  note TEXT,
+  position INTEGER NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  
+  FOREIGN KEY (workout_id) REFERENCES WorkoutSession(workout_ID)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE,
+  FOREIGN KEY (exercise_id) REFERENCES Exercise(exercise_ID)
+);
+   
+   
+CREATE TABLE WorkoutSet (
+  workoutset_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+  workout_exercise_ID INTEGER NOT NULL,
+  reps INTEGER NOT NULL,
+  weight FLOAT NOT NULL,
+  position INTEGER NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (workout_exercise_ID) REFERENCES WorkoutExercise(workout_exercise_ID)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE
+);
+   
+   
+   
+
+-- the constraints below are to stop duplications with user-bodyweight, or exercise-position. it is based on combinations of data being unique, and not single attributes themselves
+CREATE UNIQUE INDEX idx_unique_bodyweight_per_day_per_user 
+ON BodyweightEntry (user_ID, logging_date);
+
+
+CREATE UNIQUE INDEX idx_unique_position_per_template
+ON TemplateExercise(template_ID, position);
+
+
+CREATE UNIQUE INDEX idx_unique_position_per_workout
+ON WorkoutExercise(workout_id, position);
+
+
+CREATE UNIQUE INDEX idx_unique_workoutset_position
+ON WorkoutSet(workout_exercise_ID, position);
+
+
+-- this trigger stops a workout from being edited if its completed (view this later if you want this functionality)
+CREATE TRIGGER prevent_update_if_complete
+BEFORE UPDATE ON WorkoutSession
+FOR EACH ROW
+WHEN OLD.status = 'complete'
+BEGIN
+  SELECT RAISE(FAIL, 'Cannot edit a completed workout session');
+END;
+
+
+-- the two triggers below prevent two exercises being active(visible) with the same name
+CREATE TRIGGER prevent_duplicate_active_exercises
+BEFORE INSERT ON Exercise
+FOR EACH ROW
+WHEN NEW.is_active = 1
+BEGIN
+  SELECT 
+    RAISE(FAIL, 'Exercise name already exists for this user')
+  FROM Exercise
+  WHERE 
+    user_ID = NEW.user_ID AND 
+    name = NEW.name AND 
+    is_active = 1;
+END;
+
+
+CREATE TRIGGER prevent_duplicate_active_exercises_on_update
+BEFORE UPDATE ON Exercise
+FOR EACH ROW
+WHEN NEW.is_active = 1
+BEGIN
+  SELECT 
+    RAISE(FAIL, 'Exercise name already exists for this user')
+  FROM Exercise
+  WHERE 
+    user_ID = NEW.user_ID AND 
+    name = NEW.name AND 
+    is_active = 1 AND
+    exercise_ID != OLD.exercise_ID;
+END;
