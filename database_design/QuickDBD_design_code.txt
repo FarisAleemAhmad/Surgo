@@ -1,0 +1,83 @@
+UserProfile
+-
+user_ID     SERIAL  PK
+name        STRING
+age         INT
+gender      STRING
+height_cm   FLOAT 
+bodyweight_goal FLOAT
+user_created_at TIMESTAMP
+user_updated_at TIMESTAMP
+
+    
+BodyweightEntry
+-
+bodyweight_ID  INT  PK
+user_ID     INT     FK >- UserProfile.user_ID
+date        DATE    UNIQUE #per user
+weight      FLOAT
+note        TEXT    NULLABLE
+bodyweight_created_at TIMESTAMP
+bodyweight_updated_at TIMESTAMP
+
+WorkoutSession
+-
+workout_ID  INT     PK
+user_ID     INT     FK >- UserProfile.user_ID
+date        DATE
+title       STRING  NULLABLE
+status      ENUM('draft','complete')
+note        TEXT    NULLABLE
+template_ID INT     FK >- WorkoutTemplate.template_ID
+workout_created_at  TIMESTAMP   
+workout_updated_at  TIMESTAMP
+
+WorkoutExercise
+-
+workout_exercise_ID     INT     PK
+workout_id  INT     FK >- WorkoutSession.workout_ID
+exercise_id INT     FK >- Exercise.exercise_ID
+note        TEXT   NULLABLE
+position    INT
+workoutexercise_created_at  TIMESTAMP
+workoutexercise_updated_at  TIMESTAMP
+
+WorkoutSet
+-
+workoutset_ID           INT     PK
+workout_exercise_ID     INT     FK >- WorkoutExercise.workout_exercise_ID
+reps        INT
+weight      FLOAT
+position    INT
+workoutset_created_at  TIMESTAMP
+workoutset_updated_at  TIMESTAMP
+
+Exercise
+-
+exercise_ID INT     PK
+user_ID     INT     FK >- UserProfile.user_ID
+name        STRING
+is_custom   BOOLEAN DEFAULT=TRUE
+is_active   BOOLEAN DEFAULT=TRUE
+exercise_created_at  TIMESTAMP
+exercise_updated_at  TIMESTAMP
+
+
+WorkoutTemplate
+-
+template_ID          INT     PK
+user_ID     INT     FK >- UserProfile.user_ID
+name        STRING
+note        TEXT    NULLABLE
+template_created_at  TIMESTAMP
+template_updated_at  TIMESTAMP
+
+TemplateExercise
+-
+template_exercise_ID INT     PK
+template_ID INT     FK >- WorkoutTemplate.template_ID
+exercise_ID INT     FK >- Exercise.exercise_ID
+num_sets    INT
+position    INT
+templateexercise_created_at  TIMESTAMP
+templateexercise_updated_at  TIMESTAMP
