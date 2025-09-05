@@ -1,8 +1,32 @@
 import 'package:flutter/material.dart';
 import '../../../shared/widgets/custom_button.dart';
 
-class LoginScreen extends StatelessWidget {
+// simple email check package
+import 'package:email_validator/email_validator.dart';
+
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  // form controllers + global key
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  // functionality showing/hiding password
+  bool isPasswordVisible = false;
+
+  // function to dispose of controller to free resources
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,60 +36,106 @@ class LoginScreen extends StatelessWidget {
 
     //return the login screen layout
     return Scaffold(
-      backgroundColor: const Color(0xFF2A2A2B), // hardcoded color - generalize
+      backgroundColor:
+          theme.scaffoldBackgroundColor, // generalized color scheme
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
 
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // text SURGO title
-              Text(
-                "Surgo",
-                style: theme.textTheme.displayMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // text SURGO title
+                Text("Surgo", style: theme.textTheme.displayMedium),
+                const SizedBox(height: 40),
+
+                // text LOGIN title
+                Text("Login", style: theme.textTheme.titleMedium),
+
+                // email field
+                TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(labelText: "Email"),
+                  validator: (value) {
+                    // null / empty
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Email is required';
+                    }
+                    // email syntax check
+                    if (!EmailValidator.validate(value.trim())) {
+                      return 'Enter a valid email';
+                    }
+                    // no error
+                    return null;
+                  },
                 ),
-              ),
-              const SizedBox(height: 40),
+                const SizedBox(height: 16),
 
-              // text LOGIN title
-              Text(
-                "Login",
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                // label 'password' + // textfield - enter password + show/hide password
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: !isPasswordVisible,
+                  decoration: InputDecoration(
+                    labelText: "Password",
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: theme.iconTheme.color,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          isPasswordVisible = !isPasswordVisible;
+                        });
+                      },
+                    ),
+                  ),
+                  validator: (value) {
+                    // optional basic password check
+                    if (value == null || value.isEmpty) {
+                      return 'Password is required';
+                    }
+                    return null;
+                  },
                 ),
-              ),
+                const SizedBox(height: 24),
 
-              // labeled 'email' + textfield - enter email
-              TextField(decoration: const InputDecoration(labelText: "Email")),
-              const SizedBox(height: 16),
+                // login button custom -- navigation to home screen -- authentication/validation on click
+                CustomButton(
+                  text: "Login",
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      Navigator.pushReplacementNamed(context, '/home');
+                    }
+                  },
+                ),
+                const SizedBox(height: 20),
 
-              // label 'password' + // textfield - enter password
-              TextField(
-                obscureText: true,
-                decoration: const InputDecoration(labelText: "Password"),
-              ),
-              const SizedBox(height: 24),
+                // text button - no account -- sign up screen. -- LINK NAVIGATION TO SIGN UP PAGE -- should this use replacement named
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/signup');
+                  },
+                  child: Text(
+                    "Don't have an account? Sign Up",
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ),
 
-              // login button custom -- link navigation to homescreen and include authentication etc
-              CustomButton(text: "Login", onPressed: () {}),
-              const SizedBox(height: 20),
-
-              // text button - no account -- sign up screen. -- LINK NAVIGATION TO SIGN UP PAGE
-              TextButton(
-                onPressed: () {},
-                child: const Text("Don't have an account? Sign Up"),
-              ),
-
-              // text button - forgot password navigation to password reset -- LINK NAVIGATION LATER ON
-              TextButton(
-                onPressed: () {},
-                child: const Text("Forgot Password?"),
-              ),
-            ], // Children
+                // text button - forgot password navigation to password reset -- LINK NAVIGATION LATER ON
+                TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    "Forgot Password?",
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ),
+              ], // Children
+            ),
           ),
         ),
       ),

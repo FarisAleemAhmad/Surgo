@@ -6,6 +6,8 @@ import 'theme/app_theme.dart';
 
 // auth screens
 import '../features/auth/presentation/login_screen.dart';
+import '../features/auth/presentation/signup_screen.dart';
+import '../features/home/presentation/home_screen.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -18,7 +20,12 @@ class App extends StatelessWidget {
       theme: AppTheme.darkTheme,
 
       // ROUTING
-      home: const LoginScreen(), // hardcoded - fix later
+      initialRoute: '/login',
+      routes: {
+        '/login': (context) => const LoginScreen(),
+        '/signup': (context) => const SignUpScreen(),
+        '/home': (context) => const HomeScreen(),
+      },
     );
   }
 }

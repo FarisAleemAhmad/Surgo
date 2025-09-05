@@ -5,9 +5,7 @@ import 'app/app.dart'; // import global config app
 
 Future<void> main() async {
   // Ensure flutter bindings are initialized
-  WidgetsFlutterBinding.ensureInitialized;
-
-  // Supabase Initialization (TODO)
+  WidgetsFlutterBinding.ensureInitialized();
 
   // Run App
   runApp(const App());

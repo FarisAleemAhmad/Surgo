@@ -47,6 +47,22 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(vertical: 16),
         ),
       ),
+
+      // input decoration theme
+      inputDecorationTheme: const InputDecorationTheme(
+        labelStyle: TextStyle(
+          fontFamily: 'Pontano Sans',
+          color: Colors.white70,
+        ),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white30),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF7B2CBF)),
+        ),
+      ),
+
+      iconTheme: const IconThemeData(color: Colors.white70, size: 24),
     );
   }
 }
