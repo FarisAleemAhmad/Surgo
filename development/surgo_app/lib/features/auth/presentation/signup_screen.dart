@@ -1,8 +1,10 @@
+// package imports
 import 'package:flutter/material.dart';
-import '../../../shared/widgets/custom_button.dart';
-
-// package to validate email format
 import 'package:email_validator/email_validator.dart';
+
+// local imports
+import '../../../shared/widgets/custom_button.dart';
+import '../data/auth_repository.dart';
 
 // SignUpScreen Stateful
 class SignUpScreen extends StatefulWidget {
@@ -12,7 +14,7 @@ class SignUpScreen extends StatefulWidget {
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-// SignUpScreen
+// SignUpScreen extension of stateful
 class _SignUpScreenState extends State<SignUpScreen> {
   //  controllers and formkey
   final _formKey = GlobalKey<FormState>();
@@ -24,6 +26,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool isPasswordVisible = false;
   bool isConfirmPasswordVisible = false;
 
+  // authRepo class instance
+  final _authRepo = AuthRepository();
+
   // override dispose function -- free up controllers
   @override
   void dispose() {
@@ -33,6 +38,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
+  // function to handle signup (used in signup button)
+  Future<void> _handleSignup(BuildContext context) async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      await _authRepo.signup(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      ); // call auth repo functino signup
+      if (!mounted) return; // mounted check to see if widget is alive
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("SignUp success, please log in")),
+      );
+
+      Navigator.pushReplacementNamed(context, '/login');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Signup failed: ${e.toString()}')));
+    }
+  }
+
+  // function to build scaffold/layout page
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -142,14 +172,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 CustomButton(
                   text: "Sign Up",
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      /* for later use.   
-                      final email = _emailController.text.trim();
-                      final password = _passwordController.text.trim(); */
-
-                      // temporary - replace with credential sign up method
-                      Navigator.pushReplacementNamed(context, '/home');
-                    }
+                    _handleSignup(context);
                   },
                 ),
                 const SizedBox(height: 20),

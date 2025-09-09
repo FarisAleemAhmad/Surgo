@@ -1,9 +1,13 @@
+// package imports
 import 'package:flutter/material.dart';
-import '../../../shared/widgets/custom_button.dart';
-
-// simple email check package
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+// local imports
+import '../../../shared/widgets/custom_button.dart';
+import '../data/auth_repository.dart';
+
+// stateful login screen
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -11,6 +15,7 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
+// extension of stateful login screen
 class _LoginScreenState extends State<LoginScreen> {
   // form controllers + global key
   final _formKey = GlobalKey<FormState>();
@@ -20,6 +25,11 @@ class _LoginScreenState extends State<LoginScreen> {
   // functionality showing/hiding password
   bool isPasswordVisible = false;
 
+  // repository + secure storage variables
+  final _authRepo =
+      AuthRepository(); // assign authRepo the authrepository class
+  final _secureStorage = const FlutterSecureStorage();
+
   // function to dispose of controller to free resources
   @override
   void dispose() {
@@ -28,6 +38,27 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  // function to login the user (used in login button)
+  Future<void> _handleLogin(BuildContext context) async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      final token = await _authRepo.login(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+      await _secureStorage.write(key: 'jwt', value: token);
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/home');
+    } catch (err) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Login failed: $err')));
+    }
+  }
+
+  // function to build the scaffold/page layout
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(
@@ -108,9 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 CustomButton(
                   text: "Login",
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.pushReplacementNamed(context, '/home');
-                    }
+                    _handleLogin(context);
                   },
                 ),
                 const SizedBox(height: 20),
