@@ -9,6 +9,7 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 // starting the express server
 const app = express();
 
+
 // enabling cors before json and routes
 app.use(
   cors({

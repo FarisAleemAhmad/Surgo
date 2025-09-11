@@ -1,0 +1,18 @@
+ERRORS AND BUGFIXES - Authentication
+
+
+---BugFixes---
+1) when an email has been signed up with, reusing that email to sign up causes the navigation to lead to homepage, and a popup saying signUp successful, please log in to occur. there's two subcases within this, 
+a) if the email was confirmed before resigning up, another email confirmation isnt set
+b) but if the email wasnt confirmed beforehand, another email is sent to the user 
+if both signups use the same email but different passwords, the first password is always used
+2) i can press the back button on my edge after i login to go back to my navigation page, that shouldn't be possible. i dont know if it's because im using edge to use the app and it wont occur in the mobile app.
+
+---Refinements---
+1 ) the snackbar errors have a very outstanding and awkward / blaring aesthetic - it is a full white bar at the bottom clashing against the app's relative design.
+
+2) the errors in the snackbar are not dealt with. they often occur in the raw format that they are produced in, for example - DIOEXCEPTION STATUS CODE 400 etc. i want it to be more user friendly/
+
+here are the errors i noted down that are common to occur
+a) invalid credentials (when logging in)
+b) email unconfirmed when trying to log in but after signing up

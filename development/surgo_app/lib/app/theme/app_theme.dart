@@ -63,6 +63,14 @@ class AppTheme {
       ),
 
       iconTheme: const IconThemeData(color: Colors.white70, size: 24),
+
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: Colors.red.shade400, // error background
+        contentTextStyle: TextStyle(color: Colors.white), // text color
+        behavior: SnackBarBehavior.floating, // nice floating look
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        insetPadding: const EdgeInsets.all(16),
+      ),
     );
   }
 }

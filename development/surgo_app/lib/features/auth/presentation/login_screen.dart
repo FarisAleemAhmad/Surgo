@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 // local imports
 import '../../../shared/widgets/custom_button.dart';
+import '../../../shared/utils/app_notifier.dart';
 import '../data/auth_repository.dart';
 
 // stateful login screen
@@ -49,12 +50,11 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       await _secureStorage.write(key: 'jwt', value: token);
       if (!mounted) return;
+      AppNotifier.showSuccess(context, "Logged in successfully.");
       Navigator.pushReplacementNamed(context, '/home');
     } catch (err) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Login failed: $err')));
+      AppNotifier.showError(context, err);
     }
   }
 

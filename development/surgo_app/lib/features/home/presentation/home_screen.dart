@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 // local imports
 import '../../../shared/widgets/custom_button.dart';
+import '../../../shared/utils/app_notifier.dart';
 import '../../auth/data/auth_repository.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -62,12 +63,14 @@ class HomeScreen extends StatelessWidget {
                     await _authRepo.deleteAccount();
                     await _secureStorage.delete(key: 'jwt');
                     if (!context.mounted) return;
+                    AppNotifier.showSuccess(
+                      context,
+                      "Your account has been deleted.",
+                    );
                     Navigator.pushReplacementNamed(context, '/login');
                   } catch (err) {
                     if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Delete failed')),
-                    );
+                    AppNotifier.showError(context, err);
                   }
                 },
               ),

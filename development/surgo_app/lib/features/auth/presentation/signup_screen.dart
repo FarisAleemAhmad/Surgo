@@ -4,6 +4,7 @@ import 'package:email_validator/email_validator.dart';
 
 // local imports
 import '../../../shared/widgets/custom_button.dart';
+import '../../../shared/utils/app_notifier.dart';
 import '../data/auth_repository.dart';
 
 // SignUpScreen Stateful
@@ -49,16 +50,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ); // call auth repo functino signup
       if (!mounted) return; // mounted check to see if widget is alive
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("SignUp success, please log in")),
+      AppNotifier.showSuccess(
+        context,
+        "Signup successful. Please confirm your email.",
       );
 
       Navigator.pushReplacementNamed(context, '/login');
-    } catch (e) {
+    } catch (err) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Signup failed: ${e.toString()}')));
+      AppNotifier.showError(context, err);
     }
   }
 
