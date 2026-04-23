@@ -35,6 +35,21 @@ export async function loginController(req, res, next) {
   }
 }
 
+// controller for requesting a password reset email
+export async function forgotPasswordController(req, res, next) {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+    await authService.forgotPassword(email.trim());
+    // always return success -- prevents exposing whether an email is registered
+    res.status(200).json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+}
+
 // controller for deleting a user
 export async function deleteAccountController(req, res, next) {
   try {

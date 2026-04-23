@@ -7,6 +7,7 @@ import 'theme/app_theme.dart';
 // auth screens
 import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/signup_screen.dart';
+import '../features/auth/presentation/forgot_password_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 
 class App extends StatelessWidget {
@@ -24,6 +25,7 @@ class App extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignUpScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
         '/home': (context) => const HomeScreen(),
       },
     );
