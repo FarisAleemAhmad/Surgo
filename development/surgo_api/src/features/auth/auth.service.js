@@ -20,6 +20,13 @@ export async function login(email, password) {
   return await authRepo.signInWithEmail(email, password);
 }
 
+// function to send a password reset email to the given address
+export async function forgotPassword(email) {
+  // add business logic here when required (e.g. rate limiting)
+
+  return await authRepo.sendPasswordResetEmail(email);
+}
+
 // function to delete a user's account using UserID
 export async function deleteUser(userID) {
   const { error } = await supabaseAdmin.auth.admin.deleteUser(userID);

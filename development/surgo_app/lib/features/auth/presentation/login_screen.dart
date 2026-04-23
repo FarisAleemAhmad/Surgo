@@ -155,9 +155,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
-                // text button - forgot password navigation to password reset -- LINK NAVIGATION LATER ON
+                // text button - forgot password -- navigates to forgot password screen
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/forgot-password');
+                  },
                   child: Text(
                     "Forgot Password?",
                     style: theme.textTheme.bodyMedium,

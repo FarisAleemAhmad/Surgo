@@ -28,3 +28,12 @@ export async function signInWithEmail(email, password) {
   }
   return data; // contains session and user on success
 }
+
+// 3) function for sending a password reset email
+export async function sendPasswordResetEmail(email) {
+  // supabase sends a reset link to the email address
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
+  if (error) {
+    throw error;
+  }
+}

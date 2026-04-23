@@ -25,6 +25,13 @@ class AuthRepository {
     );
   }
 
+  Future<void> forgotPassword(String email) async {
+    await _api.post(
+      '/api/auth/forgot-password',
+      data: {'email': email},
+    );
+  }
+
   Future<void> deleteAccount() async {
     await _api.delete('/api/auth/delete');
   }
